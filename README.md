@@ -63,12 +63,12 @@ Each service runs in a dedicated Docker container built from Alpine or Debian st
 Self-signed certificate generated with:
 ```bash
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout user.42.fr.key \
-    -out user.42.fr.crt \
-    -subj "/C=ES/ST=<your_state>/L=<you_province>/O=42/OU=42/CN=user.42.fr"
+    -keyout <your_user>.42.fr.key \
+    -out <your_user>.42.fr.crt \
+    -subj "/C=ES/ST=<your_state>/L=<your_province>/O=42/OU=42/CN=<your_user>.42.fr"
 mkdir /requirements/nginx/ssl
-mv user.fr.key /requirements/nginx/ssl/
-mv user.fr.crt /requirements/nginx/ssl/
+mv <your_user>.fr.key /requirements/nginx/ssl/
+mv <your_user>.fr.crt /requirements/nginx/ssl/
 ```
 
 4. **Configure environment variables:**
@@ -76,25 +76,25 @@ mv user.fr.crt /requirements/nginx/ssl/
    Create a `.env` file in the `srcs/` directory with your credentials:
    ```bash
    # Database Configuration
-   DB_NAME=wordpress
-   DB_USER=wpuser
-   DB_PASS=your_secure_password
-   DB_ROOT=your_root_password
+   DB_NAME=inception
+   DB_USER=<your_user>
+   DB_PASS=<your_secure_password>
+   DB_ROOT=<your_root_password>
    
    # WordPress Configuration
    WP_DB_HOST=mariadb
-   WP_URL=https://user.42.fr
+   WP_URL=https://<your_user>.42.fr
    TITLE=My Inception Site
-   DOMAIN_NAME=user.42.fr
+   DOMAIN_NAME=<your_user>.42.fr
    
    # WordPress Admin
-   WP_ADMIN_USER=admin
-   WP_ADMIN_PASS=admin_password
-   WP_ADMIN_EMAIL=admin@example.com
+   WP_ADMIN_USER=<your_user>
+   WP_ADMIN_PASS=<your_admin_password>
+   WP_ADMIN_EMAIL=<your_admin>@example.com
    
    # WordPress User
-   WP_USER=user
-   WP_EMAIL=user@example.com
+   WP_USER=<another_user>
+   WP_EMAIL=<another_user>@example.com
    WP_PASS=user_password
    ```
 
@@ -199,7 +199,7 @@ docker stats
 ## Access
 
 Once running, access your WordPress site at:
-- **https://user.42.fr**
+- **https://<your_user>.42.fr**
 
 You'll see a browser warning about the self-signed certificate - this is expected. Click "Advanced" and "Proceed" to continue.
 
