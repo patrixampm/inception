@@ -1,0 +1,82 @@
+networks:
+  inception:
+    driver: bridge
+
+services:
+  nginx:
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    networks:
+      - inception
+    volumes:
+      - ./requirements/nginx/conf/nginx.conf:/etc/nginx/http.d/default.conf:ro
+      - wp-volume:/var/www/html
+    restart: on-failure
+  
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    container_name: mariadb
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_ROOT=${DB_ROOT}
+    networks:
+      - inception
+    volumes:
+      - db-volume:/var/lib/mysql
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    container_name: wordpress
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - WP_DB_HOST=${WP_DB_HOST}
+      - WP_URL=${WP_URL}
+      - TITLE=${TITLE}
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - WP_ADMIN_USER=${WP_ADMIN_USER}
+      - WP_ADMIN_PASS=${WP_ADMIN_PASS}
+      - WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}
+      - WP_USER=${WP_USER}
+      - WP_EMAIL=${WP_EMAIL}
+      - WP_PASS=${WP_PASS}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inception
+    volumes:
+      - wp-volume:/var/www/html
+    restart: on-failure
+
+volumes:
+  wp-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/wordpress
+  
+  db-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/mariadb
